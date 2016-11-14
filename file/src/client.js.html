@@ -39,7 +39,7 @@
 
 <div class="content" data-ice="content"><h1 data-ice="title">src/client.js</h1>
 <pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import {Observable} from &apos;rxjs&apos;;
-import request from &apos;superagent&apos;;
+import superagent from &apos;superagent&apos;;
 
 /**
  * Sends messages by SMS to a [Free Mobile](http://mobile.free.fr) account.
@@ -48,25 +48,21 @@ export class Client {
 
   /**
    * Initializes a new instance of the class.
-   * @param {string} userName The user name associated to the account.
-   * @param {string} password The identification key associated to the account.
-   * @throws {Error} The specified user name or password is empty.
+   * @param {object} [options] An object specifying values used to initialize this instance.
    */
-  constructor(userName, password) {
-    if (typeof userName != &apos;string&apos; || !userName.length) throw new Error(&apos;The specified user name is empty.&apos;);
-    if (typeof password != &apos;string&apos; || !password.length) throw new Error(&apos;The specified password is empty.&apos;);
+  constructor(options = {}) {
 
     /**
      * The identification key associated to the account.
      * @type {string}
      */
-    this.password = password;
+    this.password = typeof options.password == &apos;string&apos; ? options.password : &apos;&apos;;
 
     /**
      * The user name associated to the account.
      * @type {string}
      */
-    this.userName = userName;
+    this.username = typeof options.username == &apos;string&apos; ? options.username : &apos;&apos;;
   }
 
   /**
@@ -83,14 +79,17 @@ export class Client {
    * @return {Observable&lt;string&gt;} The response as string.
    */
   sendMessage(text) {
-    let encoded = Buffer.from(text).toString(&apos;latin1&apos;).trim();
-    if (!encoded.length) return Observable.throw(new Error(&apos;The specified message is empty.&apos;));
+    if (!this.username.length || !this.password.length)
+      return Observable.throw(new Error(&apos;The account credentials are invalid.&apos;));
 
-    return new Observable(observer =&gt; request.get(Client.END_POINT)
+    let message = text.trim();
+    if (!message.length) return Observable.throw(new Error(&apos;The specified message is empty.&apos;));
+
+    return new Observable(observer =&gt; superagent.get(Client.END_POINT)
       .query({
-        msg: encoded.substr(0, 160),
+        msg: message.substr(0, 160),
         pass: this.password,
-        user: this.userName
+        user: this.username
       })
       .end((err, res) =&gt; {
         if (err || !res.ok) observer.error(new Error(err ? err.status : res.status));
@@ -100,6 +99,26 @@ export class Client {
         }
       })
     );
+  }
+
+  /**
+   * Converts this object to a map in JSON format.
+   * @return {object} The map in JSON format corresponding to this object.
+   */
+  toJSON() {
+    return {
+      password: this.password,
+      username: this.username
+    };
+  }
+
+  /**
+   * Returns a string representation of this object.
+   * @return {string} The string representation of this object.
+   */
+  toString() {
+    let json = JSON.stringify(this.toJSON(), null, 2);
+    return `${this.constructor.name} ${json}`;
   }
 }
 </code></pre>

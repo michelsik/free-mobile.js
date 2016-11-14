@@ -38,7 +38,7 @@
 </nav>
 
 <div class="content" data-ice="content"><div data-ice="index" class="github-markdown"><h1 id="free-mobile-for-js">Free Mobile for JS</h1>
-<p><img src="https://img.shields.io/npm/v/@cedx/free-mobile.svg" alt="Release"> <img src="https://img.shields.io/npm/l/@cedx/free-mobile.svg" alt="License"> <img src="https://img.shields.io/npm/dt/@cedx/free-mobile.svg" alt="Downloads"> <img src="https://img.shields.io/david/cedx/free-mobile.svg" alt="Dependencies"> <img src="https://img.shields.io/codacy/grade/e5a0027047554e298db354bcf3defefc.svg" alt="Code quality"> <img src="https://img.shields.io/travis/cedx/free-mobile.js.svg" alt="Build"></p>
+<p><img src="https://img.shields.io/npm/v/@cedx/free-mobile.svg" alt="Release"> <img src="https://img.shields.io/npm/l/@cedx/free-mobile.svg" alt="License"> <img src="https://img.shields.io/npm/dt/@cedx/free-mobile.svg" alt="Downloads"> <img src="https://img.shields.io/david/cedx/free-mobile.js.svg" alt="Dependencies"> <img src="https://img.shields.io/codacy/grade/e5a0027047554e298db354bcf3defefc.svg" alt="Code quality"> <img src="https://img.shields.io/travis/cedx/free-mobile.js.svg" alt="Build"></p>
 <p>Send SMS messages to your <a href="http://mobile.free.fr">Free Mobile</a> account, in <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript">JavaScript</a>.</p>
 <p>To use this library, you must have enabled SMS Notifications in the Options of your <a href="https://mobile.free.fr/moncompte">Subscriber Area</a>.</p>
 <h2 id="requirements">Requirements</h2>
@@ -50,16 +50,20 @@ If you plan to play with the sources, you will also need the <a href="http://gul
 </code></pre>
 <h2 id="usage">Usage</h2>
 <p>This package has an API based on <a href="http://reactivex.io/intro.html">Observables</a>.</p>
-<p>It provides a single class, <code>Client</code> which allow to send messages to your mobile phone by using the <code>sendMessage</code> method:</p>
+<p>It provides a single class, <code>Client</code>, which allow to send messages to your mobile phone by using the <code>sendMessage</code> method:</p>
 <pre><code class="lang-javascript"><code class="source-code prettyprint">const {Client} = require(&apos;free-mobile&apos;);
 
-let client = new Client(&apos;your Free Mobile user name&apos;, &apos;your Free Mobile identification key&apos;);
+let client = new Client({
+  username: &apos;your Free Mobile user name&apos;,
+  password: &apos;your Free Mobile identification key&apos;
+});
+
 client.sendMessage(&apos;Hello World!&apos;).subscribe(
   () =&gt; console.log(&apos;The message was sent successfully.&apos;),
-  err =&gt; console.log(`An error occurred while sending the message: ${err}`)
+  err =&gt; console.log(`An error occurred: ${err}`)
 );</code>
 </code></pre>
-<p>The text of the message will be automatically truncated to 160 characters: you can&apos;t send multipart messages using this library.</p>
+<p>The text of the messages will be automatically truncated to 160 characters: you can&apos;t send multipart messages using this library.</p>
 <h2 id="promise-support">Promise Support</h2>
 <p>If you require it, an <code>Observable</code> can be converted to a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a> by using the <code>toPromise()</code> method:</p>
 <pre><code class="lang-javascript"><code class="source-code prettyprint">let promise = client.sendMessage(&apos;Hello World!&apos;).toPromise();

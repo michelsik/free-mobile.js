@@ -350,25 +350,49 @@ window.esdocSearchIndex = [
   [
     "",
     "test-file/test/client.test.js.html#lineNumber14",
-    "Client #constructor() should throw an error if arguments are invalid",
+    "Client #constructor() should initialize the existing properties",
+    "test"
+  ],
+  [
+    "",
+    "test-file/test/client.test.js.html#lineNumber20",
+    "Client #constructor() should not create new properties",
     "test"
   ],
   [
     "client#sendmessage src/client.js~client#sendmessage,client#sendmessage",
-    "test-file/test/client.test.js.html#lineNumber22",
+    "test-file/test/client.test.js.html#lineNumber28",
     "Client #sendMessage()",
     "test"
   ],
   [
     "",
-    "test-file/test/client.test.js.html#lineNumber23",
-    "Client #sendMessage() should disallow empty messages",
+    "test-file/test/client.test.js.html#lineNumber36",
+    "Client #sendMessage() should not send invalid messages with valid credentials",
     "test"
   ],
   [
     "",
-    "test-file/test/client.test.js.html#lineNumber31",
-    "Client #sendMessage() should send the messages with valid credentials",
+    "test-file/test/client.test.js.html#lineNumber29",
+    "Client #sendMessage() should not send valid messages with invalid credentials",
+    "test"
+  ],
+  [
+    "",
+    "test-file/test/client.test.js.html#lineNumber44",
+    "Client #sendMessage() should send valid messages with valid credentials",
+    "test"
+  ],
+  [
+    "client#tojson src/client.js~client#tojson,client#tojson",
+    "test-file/test/client.test.js.html#lineNumber54",
+    "Client #toJSON()",
+    "test"
+  ],
+  [
+    "",
+    "test-file/test/client.test.js.html#lineNumber55",
+    "Client #toJSON() should return an object instance with the same public values",
     "test"
   ],
   [
@@ -396,9 +420,21 @@ window.esdocSearchIndex = [
     "method"
   ],
   [
+    "src/client.js~client#tojson",
+    "class/src/client.js~Client.html#instance-method-toJSON",
+    "src/client.js~Client#toJSON",
+    "method"
+  ],
+  [
+    "src/client.js~client#tostring",
+    "class/src/client.js~Client.html#instance-method-toString",
+    "src/client.js~Client#toString",
+    "method"
+  ],
+  [
     "src/client.js~client#username",
-    "class/src/client.js~Client.html#instance-member-userName",
-    "src/client.js~Client#userName",
+    "class/src/client.js~Client.html#instance-member-username",
+    "src/client.js~Client#username",
     "member"
   ],
   [

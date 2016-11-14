@@ -10,7 +10,7 @@
     "access": null,
     "description": null,
     "lineNumber": 1,
-    "content": "import {Observable} from 'rxjs';\r\nimport request from 'superagent';\r\n\r\n/**\r\n * Sends messages by SMS to a [Free Mobile](http://mobile.free.fr) account.\r\n */\r\nexport class Client {\r\n\r\n  /**\r\n   * Initializes a new instance of the class.\r\n   * @param {string} userName The user name associated to the account.\r\n   * @param {string} password The identification key associated to the account.\r\n   * @throws {Error} The specified user name or password is empty.\r\n   */\r\n  constructor(userName, password) {\r\n    if (typeof userName != 'string' || !userName.length) throw new Error('The specified user name is empty.');\r\n    if (typeof password != 'string' || !password.length) throw new Error('The specified password is empty.');\r\n\r\n    /**\r\n     * The identification key associated to the account.\r\n     * @type {string}\r\n     */\r\n    this.password = password;\r\n\r\n    /**\r\n     * The user name associated to the account.\r\n     * @type {string}\r\n     */\r\n    this.userName = userName;\r\n  }\r\n\r\n  /**\r\n   * The URL of the API end point.\r\n   * @type {string}\r\n   */\r\n  static get END_POINT() {\r\n    return 'https://smsapi.free-mobile.fr/sendmsg';\r\n  }\r\n\r\n  /**\r\n   * Sends a SMS message to the underlying account.\r\n   * @param {string} text The text of the message to send.\r\n   * @return {Observable<string>} The response as string.\r\n   */\r\n  sendMessage(text) {\r\n    let encoded = Buffer.from(text).toString('latin1').trim();\r\n    if (!encoded.length) return Observable.throw(new Error('The specified message is empty.'));\r\n\r\n    return new Observable(observer => request.get(Client.END_POINT)\r\n      .query({\r\n        msg: encoded.substr(0, 160),\r\n        pass: this.password,\r\n        user: this.userName\r\n      })\r\n      .end((err, res) => {\r\n        if (err || !res.ok) observer.error(new Error(err ? err.status : res.status));\r\n        else {\r\n          observer.next(res.text);\r\n          observer.complete();\r\n        }\r\n      })\r\n    );\r\n  }\r\n}\r\n"
+    "content": "import {Observable} from 'rxjs';\r\nimport superagent from 'superagent';\r\n\r\n/**\r\n * Sends messages by SMS to a [Free Mobile](http://mobile.free.fr) account.\r\n */\r\nexport class Client {\r\n\r\n  /**\r\n   * Initializes a new instance of the class.\r\n   * @param {object} [options] An object specifying values used to initialize this instance.\r\n   */\r\n  constructor(options = {}) {\r\n\r\n    /**\r\n     * The identification key associated to the account.\r\n     * @type {string}\r\n     */\r\n    this.password = typeof options.password == 'string' ? options.password : '';\r\n\r\n    /**\r\n     * The user name associated to the account.\r\n     * @type {string}\r\n     */\r\n    this.username = typeof options.username == 'string' ? options.username : '';\r\n  }\r\n\r\n  /**\r\n   * The URL of the API end point.\r\n   * @type {string}\r\n   */\r\n  static get END_POINT() {\r\n    return 'https://smsapi.free-mobile.fr/sendmsg';\r\n  }\r\n\r\n  /**\r\n   * Sends a SMS message to the underlying account.\r\n   * @param {string} text The text of the message to send.\r\n   * @return {Observable<string>} The response as string.\r\n   */\r\n  sendMessage(text) {\r\n    if (!this.username.length || !this.password.length)\r\n      return Observable.throw(new Error('The account credentials are invalid.'));\r\n\r\n    let message = text.trim();\r\n    if (!message.length) return Observable.throw(new Error('The specified message is empty.'));\r\n\r\n    return new Observable(observer => superagent.get(Client.END_POINT)\r\n      .query({\r\n        msg: message.substr(0, 160),\r\n        pass: this.password,\r\n        user: this.username\r\n      })\r\n      .end((err, res) => {\r\n        if (err || !res.ok) observer.error(new Error(err ? err.status : res.status));\r\n        else {\r\n          observer.next(res.text);\r\n          observer.complete();\r\n        }\r\n      })\r\n    );\r\n  }\r\n\r\n  /**\r\n   * Converts this object to a map in JSON format.\r\n   * @return {object} The map in JSON format corresponding to this object.\r\n   */\r\n  toJSON() {\r\n    return {\r\n      password: this.password,\r\n      username: this.username\r\n    };\r\n  }\r\n\r\n  /**\r\n   * Returns a string representation of this object.\r\n   * @return {string} The string representation of this object.\r\n   */\r\n  toString() {\r\n    let json = JSON.stringify(this.toJSON(), null, 2);\r\n    return `${this.constructor.name} ${json}`;\r\n  }\r\n}\r\n"
   },
   {
     "__docId__": 1,
@@ -38,35 +38,17 @@
     "longname": "src/client.js~Client#constructor",
     "access": null,
     "description": "Initializes a new instance of the class.",
-    "lineNumber": 15,
+    "lineNumber": 13,
     "params": [
       {
         "nullable": null,
         "types": [
-          "string"
+          "object"
         ],
         "spread": false,
-        "optional": false,
-        "name": "userName",
-        "description": "The user name associated to the account."
-      },
-      {
-        "nullable": null,
-        "types": [
-          "string"
-        ],
-        "spread": false,
-        "optional": false,
-        "name": "password",
-        "description": "The identification key associated to the account."
-      }
-    ],
-    "throws": [
-      {
-        "types": [
-          "Error"
-        ],
-        "description": "The specified user name or password is empty."
+        "optional": true,
+        "name": "options",
+        "description": "An object specifying values used to initialize this instance."
       }
     ],
     "generator": false
@@ -81,7 +63,7 @@
     "longname": "src/client.js~Client#password",
     "access": null,
     "description": "The identification key associated to the account.",
-    "lineNumber": 23,
+    "lineNumber": 19,
     "type": {
       "nullable": null,
       "types": [
@@ -96,12 +78,12 @@
     "kind": "member",
     "static": false,
     "variation": null,
-    "name": "userName",
+    "name": "username",
     "memberof": "src/client.js~Client",
-    "longname": "src/client.js~Client#userName",
+    "longname": "src/client.js~Client#username",
     "access": null,
     "description": "The user name associated to the account.",
-    "lineNumber": 29,
+    "lineNumber": 25,
     "type": {
       "nullable": null,
       "types": [
@@ -121,7 +103,7 @@
     "longname": "src/client.js~Client.END_POINT",
     "access": null,
     "description": "The URL of the API end point.",
-    "lineNumber": 36,
+    "lineNumber": 32,
     "type": {
       "nullable": null,
       "types": [
@@ -142,7 +124,7 @@
     "longname": "src/client.js~Client#sendMessage",
     "access": null,
     "description": "Sends a SMS message to the underlying account.",
-    "lineNumber": 45,
+    "lineNumber": 41,
     "params": [
       {
         "nullable": null,
@@ -167,6 +149,50 @@
   },
   {
     "__docId__": 7,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "toJSON",
+    "memberof": "src/client.js~Client",
+    "longname": "src/client.js~Client#toJSON",
+    "access": null,
+    "description": "Converts this object to a map in JSON format.",
+    "lineNumber": 68,
+    "params": [],
+    "return": {
+      "nullable": null,
+      "types": [
+        "object"
+      ],
+      "spread": false,
+      "description": "The map in JSON format corresponding to this object."
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 8,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "toString",
+    "memberof": "src/client.js~Client",
+    "longname": "src/client.js~Client#toString",
+    "access": null,
+    "description": "Returns a string representation of this object.",
+    "lineNumber": 79,
+    "params": [],
+    "return": {
+      "nullable": null,
+      "types": [
+        "string"
+      ],
+      "spread": false,
+      "description": "The string representation of this object."
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 9,
     "kind": "file",
     "static": true,
     "variation": null,
@@ -179,7 +205,7 @@
     "content": "export * from './client';\r\n"
   },
   {
-    "__docId__": 9,
+    "__docId__": 11,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -192,7 +218,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 10,
+    "__docId__": 12,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -205,7 +231,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 11,
+    "__docId__": 13,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -218,7 +244,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 12,
+    "__docId__": 14,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -231,7 +257,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 13,
+    "__docId__": 15,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -244,7 +270,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 14,
+    "__docId__": 16,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -257,7 +283,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 15,
+    "__docId__": 17,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -270,7 +296,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 16,
+    "__docId__": 18,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -283,7 +309,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 17,
+    "__docId__": 19,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -296,7 +322,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 18,
+    "__docId__": 20,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -309,7 +335,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 19,
+    "__docId__": 21,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -322,7 +348,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 20,
+    "__docId__": 22,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -335,7 +361,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 21,
+    "__docId__": 23,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -348,7 +374,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 22,
+    "__docId__": 24,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -361,7 +387,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 23,
+    "__docId__": 25,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -374,7 +400,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 24,
+    "__docId__": 26,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -387,7 +413,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 25,
+    "__docId__": 27,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -400,7 +426,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 26,
+    "__docId__": 28,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -413,7 +439,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 27,
+    "__docId__": 29,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -426,7 +452,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 28,
+    "__docId__": 30,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -439,7 +465,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 29,
+    "__docId__": 31,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -452,7 +478,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 30,
+    "__docId__": 32,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -465,7 +491,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 31,
+    "__docId__": 33,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -478,7 +504,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 32,
+    "__docId__": 34,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -491,7 +517,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 33,
+    "__docId__": 35,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -504,7 +530,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 34,
+    "__docId__": 36,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -517,7 +543,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 35,
+    "__docId__": 37,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -530,7 +556,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 36,
+    "__docId__": 38,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -543,7 +569,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 37,
+    "__docId__": 39,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -556,7 +582,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 38,
+    "__docId__": 40,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -569,7 +595,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 39,
+    "__docId__": 41,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -582,7 +608,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 40,
+    "__docId__": 42,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -595,7 +621,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 41,
+    "__docId__": 43,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -608,7 +634,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 42,
+    "__docId__": 44,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -621,7 +647,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 43,
+    "__docId__": 45,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -634,7 +660,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 44,
+    "__docId__": 46,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -647,7 +673,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 45,
+    "__docId__": 47,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -660,7 +686,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 46,
+    "__docId__": 48,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -673,7 +699,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 47,
+    "__docId__": 49,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -686,7 +712,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 48,
+    "__docId__": 50,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -699,7 +725,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 49,
+    "__docId__": 51,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -712,7 +738,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 50,
+    "__docId__": 52,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -725,7 +751,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 51,
+    "__docId__": 53,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -738,7 +764,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 52,
+    "__docId__": 54,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -751,7 +777,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 53,
+    "__docId__": 55,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -764,7 +790,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 54,
+    "__docId__": 56,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -777,7 +803,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 55,
+    "__docId__": 57,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -790,7 +816,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 57,
+    "__docId__": 59,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -803,7 +829,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 58,
+    "__docId__": 60,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -816,7 +842,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 59,
+    "__docId__": 61,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -829,7 +855,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 60,
+    "__docId__": 62,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -842,7 +868,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 61,
+    "__docId__": 63,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -855,7 +881,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 62,
+    "__docId__": 64,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -868,7 +894,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 63,
+    "__docId__": 65,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -881,7 +907,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 64,
+    "__docId__": 66,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -894,7 +920,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 65,
+    "__docId__": 67,
     "kind": "testFile",
     "static": true,
     "variation": null,
@@ -904,10 +930,10 @@
     "access": null,
     "description": null,
     "lineNumber": 1,
-    "content": "import assert from 'assert';\r\nimport {Client} from '../src/index';\r\n\r\n/**\r\n * @test {Client}\r\n */\r\ndescribe('Client', function() {\r\n  this.timeout(15000);\r\n\r\n  /**\r\n   * @test {Client#constructor}\r\n   */\r\n  describe('#constructor()', () => {\r\n    it('should throw an error if arguments are invalid', () => {\r\n      assert.throws(() => new Client('', ''));\r\n    });\r\n  });\r\n\r\n  /**\r\n   * @test {Client#sendMessage}\r\n   */\r\n  describe('#sendMessage()', () => {\r\n    it('should disallow empty messages', done => {\r\n      new Client('foo', 'bar').sendMessage('').subscribe(\r\n        () => done(new Error()),\r\n        () => done()\r\n      );\r\n    });\r\n\r\n    if ('FREEMOBILE_USERNAME' in process.env && 'FREEMOBILE_PASSWORD' in process.env)\r\n      it('should send the messages with valid credentials', done => {\r\n        new Client(process.env.FREEMOBILE_USERNAME, process.env.FREEMOBILE_PASSWORD)\r\n          .sendMessage('Hello World!')\r\n          .subscribe(null, done, done);\r\n      });\r\n  });\r\n});\r\n"
+    "content": "import assert from 'assert';\r\nimport {Client} from '../src/index';\r\n\r\n/**\r\n * @test {Client}\r\n */\r\ndescribe('Client', function() {\r\n  this.timeout(15000);\r\n\r\n  /**\r\n   * @test {Client#constructor}\r\n   */\r\n  describe('#constructor()', () => {\r\n    it('should initialize the existing properties', () => {\r\n      let client = new Client({password: 'secret', username: 'anonymous'});\r\n      assert.equal(client.password, 'secret');\r\n      assert.equal(client.username, 'anonymous');\r\n    });\r\n\r\n    it('should not create new properties', () => {\r\n      assert.ok(!('foo' in new Client({foo: 'bar'})));\r\n    });\r\n  });\r\n\r\n  /**\r\n   * @test {Client#sendMessage}\r\n   */\r\n  describe('#sendMessage()', () => {\r\n    it('should not send valid messages with invalid credentials', done => {\r\n      new Client().sendMessage('Hello World!').subscribe(\r\n        () => done(new Error('The credentials are invalid.')),\r\n        () => done()\r\n      );\r\n    });\r\n\r\n    it('should not send invalid messages with valid credentials', done => {\r\n      new Client({password: 'secret', username: 'anonymous'}).sendMessage('').subscribe(\r\n        () => done(new Error('The message is empty.')),\r\n        () => done()\r\n      );\r\n    });\r\n\r\n    if ('FREEMOBILE_USERNAME' in process.env && 'FREEMOBILE_PASSWORD' in process.env)\r\n      it('should send valid messages with valid credentials', done => {\r\n        new Client({password: process.env.FREEMOBILE_PASSWORD, username: process.env.FREEMOBILE_USERNAME})\r\n          .sendMessage('Bonjour Cédric !')\r\n          .subscribe(null, done, done);\r\n      });\r\n  });\r\n\r\n  /**\r\n   * @test {Client#toJSON}\r\n   */\r\n  describe('#toJSON()', () => {\r\n    it('should return an object instance with the same public values', () => {\r\n      let data = new Client({password: 'secret', username: 'anonymous'}).toJSON();\r\n      assert.equal(data.constructor.name, 'Object');\r\n      assert.equal(data.password, 'secret');\r\n      assert.equal(data.username, 'anonymous');\r\n    });\r\n  });\r\n});\r\n"
   },
   {
-    "__docId__": 66,
+    "__docId__": 68,
     "kind": "testDescribe",
     "static": true,
     "variation": null,
@@ -930,7 +956,7 @@
     ]
   },
   {
-    "__docId__": 67,
+    "__docId__": 69,
     "kind": "testDescribe",
     "static": true,
     "variation": null,
@@ -953,7 +979,7 @@
     ]
   },
   {
-    "__docId__": 68,
+    "__docId__": 70,
     "kind": "testIt",
     "static": true,
     "variation": null,
@@ -963,22 +989,36 @@
     "testDepth": 2,
     "longname": "test/client.test.js~describe0.describe1.it2",
     "access": null,
-    "description": "should throw an error if arguments are invalid",
+    "description": "should initialize the existing properties",
     "lineNumber": 14
   },
   {
-    "__docId__": 69,
+    "__docId__": 71,
+    "kind": "testIt",
+    "static": true,
+    "variation": null,
+    "name": "it3",
+    "testId": 3,
+    "memberof": "test/client.test.js~describe0.describe1",
+    "testDepth": 2,
+    "longname": "test/client.test.js~describe0.describe1.it3",
+    "access": null,
+    "description": "should not create new properties",
+    "lineNumber": 20
+  },
+  {
+    "__docId__": 72,
     "kind": "testDescribe",
     "static": true,
     "variation": null,
-    "name": "describe3",
-    "testId": 3,
+    "name": "describe4",
+    "testId": 4,
     "memberof": "test/client.test.js~describe0",
     "testDepth": 1,
-    "longname": "test/client.test.js~describe0.describe3",
+    "longname": "test/client.test.js~describe0.describe4",
     "access": null,
     "description": "#sendMessage()",
-    "lineNumber": 22,
+    "lineNumber": 28,
     "unknown": [
       {
         "tagName": "@test",
@@ -990,31 +1030,82 @@
     ]
   },
   {
-    "__docId__": 70,
-    "kind": "testIt",
-    "static": true,
-    "variation": null,
-    "name": "it4",
-    "testId": 4,
-    "memberof": "test/client.test.js~describe0.describe3",
-    "testDepth": 2,
-    "longname": "test/client.test.js~describe0.describe3.it4",
-    "access": null,
-    "description": "should disallow empty messages",
-    "lineNumber": 23
-  },
-  {
-    "__docId__": 71,
+    "__docId__": 73,
     "kind": "testIt",
     "static": true,
     "variation": null,
     "name": "it5",
     "testId": 5,
-    "memberof": "test/client.test.js~describe0.describe3",
+    "memberof": "test/client.test.js~describe0.describe4",
     "testDepth": 2,
-    "longname": "test/client.test.js~describe0.describe3.it5",
+    "longname": "test/client.test.js~describe0.describe4.it5",
     "access": null,
-    "description": "should send the messages with valid credentials",
-    "lineNumber": 31
+    "description": "should not send valid messages with invalid credentials",
+    "lineNumber": 29
+  },
+  {
+    "__docId__": 74,
+    "kind": "testIt",
+    "static": true,
+    "variation": null,
+    "name": "it6",
+    "testId": 6,
+    "memberof": "test/client.test.js~describe0.describe4",
+    "testDepth": 2,
+    "longname": "test/client.test.js~describe0.describe4.it6",
+    "access": null,
+    "description": "should not send invalid messages with valid credentials",
+    "lineNumber": 36
+  },
+  {
+    "__docId__": 75,
+    "kind": "testIt",
+    "static": true,
+    "variation": null,
+    "name": "it7",
+    "testId": 7,
+    "memberof": "test/client.test.js~describe0.describe4",
+    "testDepth": 2,
+    "longname": "test/client.test.js~describe0.describe4.it7",
+    "access": null,
+    "description": "should send valid messages with valid credentials",
+    "lineNumber": 44
+  },
+  {
+    "__docId__": 76,
+    "kind": "testDescribe",
+    "static": true,
+    "variation": null,
+    "name": "describe8",
+    "testId": 8,
+    "memberof": "test/client.test.js~describe0",
+    "testDepth": 1,
+    "longname": "test/client.test.js~describe0.describe8",
+    "access": null,
+    "description": "#toJSON()",
+    "lineNumber": 54,
+    "unknown": [
+      {
+        "tagName": "@test",
+        "tagValue": "{Client#toJSON}"
+      }
+    ],
+    "testTargets": [
+      "Client#toJSON"
+    ]
+  },
+  {
+    "__docId__": 77,
+    "kind": "testIt",
+    "static": true,
+    "variation": null,
+    "name": "it9",
+    "testId": 9,
+    "memberof": "test/client.test.js~describe0.describe8",
+    "testDepth": 2,
+    "longname": "test/client.test.js~describe0.describe8.it9",
+    "access": null,
+    "description": "should return an object instance with the same public values",
+    "lineNumber": 55
   }
 ]
