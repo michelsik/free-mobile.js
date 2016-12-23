@@ -337,62 +337,110 @@ window.esdocSearchIndex = [
   ],
   [
     "client src/client.js~client,client",
-    "test-file/test/client.test.js.html#lineNumber7",
+    "test-file/test/client.test.js.html#lineNumber10",
     "Client",
     "test"
   ],
   [
     "client#constructor src/client.js~client#constructor,client#constructor",
-    "test-file/test/client.test.js.html#lineNumber13",
+    "test-file/test/client.test.js.html#lineNumber16",
     "Client #constructor()",
     "test"
   ],
   [
     "",
-    "test-file/test/client.test.js.html#lineNumber14",
+    "test-file/test/client.test.js.html#lineNumber17",
     "Client #constructor() should initialize the existing properties",
     "test"
   ],
   [
     "",
-    "test-file/test/client.test.js.html#lineNumber20",
+    "test-file/test/client.test.js.html#lineNumber23",
     "Client #constructor() should not create new properties",
     "test"
   ],
   [
+    "client#onrequest src/client.js~client#onrequest,client#onrequest",
+    "test-file/test/client.test.js.html#lineNumber31",
+    "Client #onRequest",
+    "test"
+  ],
+  [
+    "",
+    "test-file/test/client.test.js.html#lineNumber32",
+    "Client #onRequest should return an Observable instead of the underlying Subject",
+    "test"
+  ],
+  [
+    "client#onresponse src/client.js~client#onresponse,client#onresponse",
+    "test-file/test/client.test.js.html#lineNumber42",
+    "Client #onResponse",
+    "test"
+  ],
+  [
+    "",
+    "test-file/test/client.test.js.html#lineNumber43",
+    "Client #onResponse should return an Observable instead of the underlying Subject",
+    "test"
+  ],
+  [
     "client#sendmessage src/client.js~client#sendmessage,client#sendmessage",
-    "test-file/test/client.test.js.html#lineNumber28",
+    "test-file/test/client.test.js.html#lineNumber53",
     "Client #sendMessage()",
     "test"
   ],
   [
     "",
-    "test-file/test/client.test.js.html#lineNumber36",
+    "test-file/test/client.test.js.html#lineNumber65",
     "Client #sendMessage() should not send invalid messages with valid credentials",
     "test"
   ],
   [
     "",
-    "test-file/test/client.test.js.html#lineNumber29",
+    "test-file/test/client.test.js.html#lineNumber58",
     "Client #sendMessage() should not send valid messages with invalid credentials",
     "test"
   ],
   [
     "",
-    "test-file/test/client.test.js.html#lineNumber44",
+    "test-file/test/client.test.js.html#lineNumber54",
+    "Client #sendMessage() should return an Observable",
+    "test"
+  ],
+  [
+    "",
+    "test-file/test/client.test.js.html#lineNumber73",
     "Client #sendMessage() should send valid messages with valid credentials",
     "test"
   ],
   [
     "client#tojson src/client.js~client#tojson,client#tojson",
-    "test-file/test/client.test.js.html#lineNumber54",
+    "test-file/test/client.test.js.html#lineNumber83",
     "Client #toJSON()",
     "test"
   ],
   [
     "",
-    "test-file/test/client.test.js.html#lineNumber55",
+    "test-file/test/client.test.js.html#lineNumber84",
     "Client #toJSON() should return an object instance with the same public values",
+    "test"
+  ],
+  [
+    "client#tostring src/client.js~client#tostring,client#tostring",
+    "test-file/test/client.test.js.html#lineNumber96",
+    "Client #toString()",
+    "test"
+  ],
+  [
+    "",
+    "test-file/test/client.test.js.html#lineNumber103",
+    "Client #toString() should contain the properties of the client",
+    "test"
+  ],
+  [
+    "",
+    "test-file/test/client.test.js.html#lineNumber99",
+    "Client #toString() should start with the class name of the client",
     "test"
   ],
   [
@@ -406,6 +454,18 @@ window.esdocSearchIndex = [
     "class/src/client.js~Client.html#instance-constructor-constructor",
     "src/client.js~Client#constructor",
     "method"
+  ],
+  [
+    "src/client.js~client#onrequest",
+    "class/src/client.js~Client.html#instance-get-onRequest",
+    "src/client.js~Client#onRequest",
+    "member"
+  ],
+  [
+    "src/client.js~client#onresponse",
+    "class/src/client.js~Client.html#instance-get-onResponse",
+    "src/client.js~Client#onResponse",
+    "member"
   ],
   [
     "src/client.js~client#password",

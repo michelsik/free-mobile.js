@@ -38,20 +38,20 @@
 </nav>
 
 <div class="content" data-ice="content"><div data-ice="index" class="github-markdown"><h1 id="free-mobile-for-js">Free Mobile for JS</h1>
-<p><img src="https://img.shields.io/npm/v/@cedx/free-mobile.svg" alt="Release"> <img src="https://img.shields.io/npm/l/@cedx/free-mobile.svg" alt="License"> <img src="https://img.shields.io/npm/dt/@cedx/free-mobile.svg" alt="Downloads"> <img src="https://img.shields.io/david/cedx/free-mobile.js.svg" alt="Dependencies"> <img src="https://img.shields.io/codacy/grade/e5a0027047554e298db354bcf3defefc.svg" alt="Code quality"> <img src="https://img.shields.io/travis/cedx/free-mobile.js.svg" alt="Build"></p>
+<p><img src="https://img.shields.io/npm/v/@cedx/free-mobile.svg" alt="Release"> <img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License"> <img src="https://david-dm.org/cedx/free-mobile.js.svg" alt="Dependencies"> <img src="https://coveralls.io/repos/github/cedx/free-mobile.js/badge.svg" alt="Coverage"> <img src="https://travis-ci.org/cedx/free-mobile.js.svg" alt="Build"></p>
 <p>Send SMS messages to your <a href="http://mobile.free.fr">Free Mobile</a> account, in <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript">JavaScript</a>.</p>
 <p>To use this library, you must have enabled SMS Notifications in the Options of your <a href="https://mobile.free.fr/moncompte">Subscriber Area</a>.</p>
 <h2 id="requirements">Requirements</h2>
-<p>The latest <a href="https://nodejs.org">Node.js</a> and <a href="https://www.npmjs.com">NPM</a> versions.
-If you plan to play with the sources, you will also need the <a href="http://gulpjs.com/">Gulp.js</a> latest version.</p>
+<p>The latest <a href="https://nodejs.org">Node.js</a> and <a href="https://www.npmjs.com">npm</a> versions.
+If you plan to play with the sources, you will also need the latest <a href="http://gulpjs.com">Gulp.js</a> version.</p>
 <h2 id="installing-via-npm-https-www-npmjs-com-">Installing via <a href="https://www.npmjs.com">npm</a></h2>
 <p>From a command prompt, run:</p>
 <pre><code class="lang-shell"><code class="source-code prettyprint">$ npm install --save @cedx/free-mobile</code>
 </code></pre>
 <h2 id="usage">Usage</h2>
 <p>This package has an API based on <a href="http://reactivex.io/intro.html">Observables</a>.</p>
-<p>It provides a single class, <code>Client</code>, which allow to send messages to your mobile phone by using the <code>sendMessage</code> method:</p>
-<pre><code class="lang-javascript"><code class="source-code prettyprint">const {Client} = require(&apos;free-mobile&apos;);
+<p>It provides a single class, <code>Client</code>, which allow to send messages to your mobile phone by using the <code>sendMessage()</code> method:</p>
+<pre><code class="lang-javascript"><code class="source-code prettyprint">const {Client} = require(&apos;@cedx/free-mobile&apos;);
 
 let client = new Client({
   username: &apos;your Free Mobile user name&apos;,
@@ -60,20 +60,43 @@ let client = new Client({
 
 client.sendMessage(&apos;Hello World!&apos;).subscribe(
   () =&gt; console.log(&apos;The message was sent successfully.&apos;),
-  err =&gt; console.log(`An error occurred: ${err}`)
+  error =&gt; console.log(`An error occurred: ${error}`)
 );</code>
 </code></pre>
 <p>The text of the messages will be automatically truncated to 160 characters: you can&apos;t send multipart messages using this library.</p>
-<h2 id="promise-support">Promise Support</h2>
+<h2 id="events">Events</h2>
+<p>The <code>Client</code> class triggers some events during its life cycle:</p>
+<ul>
+<li><code>request</code> : emitted every time a request is made to the remote service.</li>
+<li><code>response</code> : emitted every time a response is received from the remote service.</li>
+</ul>
+<p>These events are exposed as <code>Observable</code>, you can subscribe to them using the <code>on&lt;EventName&gt;</code> properties:</p>
+<pre><code class="lang-javascript"><code class="source-code prettyprint">client.onRequest.subscribe(
+  request =&gt; console.log(`Client request: ${request.url}`)
+);
+
+client.onResponse.subscribe(
+  response =&gt; console.log(`Server response: ${response.statusCode}`)
+);</code>
+</code></pre>
+<h2 id="promise-support">Promise support</h2>
 <p>If you require it, an <code>Observable</code> can be converted to a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a> by using the <code>toPromise()</code> method:</p>
 <pre><code class="lang-javascript"><code class="source-code prettyprint">let promise = client.sendMessage(&apos;Hello World!&apos;).toPromise();
 promise.then(() =&gt; console.log(&apos;The message was sent successfully.&apos;));</code>
 </code></pre>
-<h2 id="see-also">See Also</h2>
+<h2 id="unit-tests">Unit tests</h2>
+<p>In order to run the tests, you must set two environment variables:</p>
+<pre><code class="lang-shell"><code class="source-code prettyprint">$ export FREEMOBILE_USERNAME=&quot;&lt;your Free Mobile user name&gt;&quot;
+$ export FREEMOBILE_PASSWORD=&quot;&lt;your Free Mobile identification key&gt;&quot;</code>
+</code></pre>
+<p>Then, you can run the <code>test</code> script from the command prompt:</p>
+<pre><code class="lang-shell"><code class="source-code prettyprint">$ npm test</code>
+</code></pre>
+<h2 id="see-also">See also</h2>
 <ul>
-<li><a href="http://dev.belin.io/free-mobile.js">API Reference</a></li>
-<li><a href="https://www.codacy.com/app/cedx/free-mobile-js">Code Quality</a></li>
-<li><a href="https://travis-ci.org/cedx/free-mobile.js">Continuous Integration</a></li>
+<li><a href="https://cedx.github.io/free-mobile.js">API reference</a></li>
+<li><a href="https://coveralls.io/github/cedx/free-mobile.js">Code coverage</a></li>
+<li><a href="https://travis-ci.org/cedx/free-mobile.js">Continuous integration</a></li>
 </ul>
 <h2 id="license">License</h2>
 <p><a href="https://github.com/cedx/free-mobile.js">Free Mobile for JS</a> is distributed under the Apache License, version 2.0.</p>

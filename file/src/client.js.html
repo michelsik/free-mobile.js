@@ -38,13 +38,21 @@
 </nav>
 
 <div class="content" data-ice="content"><h1 data-ice="title">src/client.js</h1>
-<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import {Observable} from &apos;rxjs&apos;;
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import {Observable, Subject} from &apos;rxjs&apos;;
 import superagent from &apos;superagent&apos;;
 
 /**
  * Sends messages by SMS to a [Free Mobile](http://mobile.free.fr) account.
  */
 export class Client {
+
+  /**
+   * The URL of the API end point.
+   * @type {string}
+   */
+  static get END_POINT() {
+    return &apos;https://smsapi.free-mobile.fr/sendmsg&apos;;
+  }
 
   /**
    * Initializes a new instance of the class.
@@ -63,20 +71,42 @@ export class Client {
      * @type {string}
      */
     this.username = typeof options.username == &apos;string&apos; ? options.username : &apos;&apos;;
+
+    /**
+     * The handler of &quot;request&quot; events.
+     * @type {Subject&lt;superagent.Request&gt;}
+     */
+    this._onRequest = new Subject();
+
+    /**
+     * The handler of &quot;response&quot; events.
+     * @type {Subject&lt;superagent.Response&gt;}
+     */
+    this._onResponse = new Subject();
   }
 
   /**
-   * The URL of the API end point.
-   * @type {string}
+   * The stream of &quot;request&quot; events.
+   * @type {Observable&lt;superagent.Request&gt;}
    */
-  static get END_POINT() {
-    return &apos;https://smsapi.free-mobile.fr/sendmsg&apos;;
+  get onRequest() {
+    return this._onRequest.asObservable();
+  }
+
+  /**
+   * The stream of &quot;response&quot; events.
+   * @type {Observable&lt;superagent.Response&gt;}
+   */
+  get onResponse() {
+    return this._onResponse.asObservable();
   }
 
   /**
    * Sends a SMS message to the underlying account.
    * @param {string} text The text of the message to send.
    * @return {Observable&lt;string&gt;} The response as string.
+   * @emits {superagent.Request} The &quot;request&quot; event.
+   * @emits {superagent.Response} The &quot;response&quot; event.
    */
   sendMessage(text) {
     if (!this.username.length || !this.password.length)
@@ -85,20 +115,23 @@ export class Client {
     let message = text.trim();
     if (!message.length) return Observable.throw(new Error(&apos;The specified message is empty.&apos;));
 
-    return new Observable(observer =&gt; superagent.get(Client.END_POINT)
-      .query({
+    return new Observable(observer =&gt; {
+      let req = superagent.get(Client.END_POINT).query({
         msg: message.substr(0, 160),
         pass: this.password,
         user: this.username
-      })
-      .end((err, res) =&gt; {
-        if (err || !res.ok) observer.error(new Error(err ? err.status : res.status));
+      });
+
+      this._onRequest.next(req);
+      req.end((err, res) =&gt; {
+        if (err) observer.error(err);
         else {
+          this._onResponse.next(res);
           observer.next(res.text);
           observer.complete();
         }
-      })
-    );
+      });
+    });
   }
 
   /**
