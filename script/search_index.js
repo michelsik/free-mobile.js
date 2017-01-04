@@ -6,6 +6,12 @@ window.esdocSearchIndex = [
     "class"
   ],
   [
+    "@cedx/free-mobile/src/index.js~sendmessage",
+    "function/index.html#static-function-sendMessage",
+    "<span>sendMessage</span> <span class=\"search-result-import-path\">@cedx/free-mobile/src/index.js</span>",
+    "function"
+  ],
+  [
     "builtinexternal/ecmascriptexternal.js~array",
     "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array",
     "BuiltinExternal/ECMAScriptExternal.js~Array",
@@ -444,6 +450,30 @@ window.esdocSearchIndex = [
     "test"
   ],
   [
+    "sendmessage src/client.js~client#sendmessage,sendmessage",
+    "test-file/test/index_test.js.html#lineNumber10",
+    "sendMessage()",
+    "test"
+  ],
+  [
+    "",
+    "test-file/test/index_test.js.html#lineNumber22",
+    "sendMessage() should not send invalid messages with valid credentials",
+    "test"
+  ],
+  [
+    "",
+    "test-file/test/index_test.js.html#lineNumber15",
+    "sendMessage() should not send valid messages with invalid credentials",
+    "test"
+  ],
+  [
+    "",
+    "test-file/test/index_test.js.html#lineNumber11",
+    "sendMessage() should return an Observable",
+    "test"
+  ],
+  [
     "src/client.js",
     "file/src/client.js.html",
     "src/client.js",
@@ -513,6 +543,12 @@ window.esdocSearchIndex = [
     "test/client_test.js",
     "test-file/test/client_test.js.html",
     "test/client_test.js",
+    "testFile"
+  ],
+  [
+    "test/index_test.js",
+    "test-file/test/index_test.js.html",
+    "test/index_test.js",
     "testFile"
   ]
 ]

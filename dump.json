@@ -3,7 +3,7 @@
     "__docId__": 0,
     "kind": "file",
     "name": "src/client.js",
-    "content": "import {Observable, Subject} from 'rxjs';\r\nimport superagent from 'superagent';\r\n\r\n/**\r\n * Sends messages by SMS to a [Free Mobile](http://mobile.free.fr) account.\r\n */\r\nexport class Client {\r\n\r\n  /**\r\n   * The URL of the API end point.\r\n   * @type {string}\r\n   */\r\n  static get END_POINT() {\r\n    return 'https://smsapi.free-mobile.fr/sendmsg';\r\n  }\r\n\r\n  /**\r\n   * Initializes a new instance of the class.\r\n   * @param {object} [options] An object specifying values used to initialize this instance.\r\n   */\r\n  constructor(options = {}) {\r\n\r\n    /**\r\n     * The identification key associated to the account.\r\n     * @type {string}\r\n     */\r\n    this.password = typeof options.password == 'string' ? options.password : '';\r\n\r\n    /**\r\n     * The user name associated to the account.\r\n     * @type {string}\r\n     */\r\n    this.username = typeof options.username == 'string' ? options.username : '';\r\n\r\n    /**\r\n     * The handler of \"request\" events.\r\n     * @type {Subject<superagent.Request>}\r\n     */\r\n    this._onRequest = new Subject();\r\n\r\n    /**\r\n     * The handler of \"response\" events.\r\n     * @type {Subject<superagent.Response>}\r\n     */\r\n    this._onResponse = new Subject();\r\n  }\r\n\r\n  /**\r\n   * The stream of \"request\" events.\r\n   * @type {Observable<superagent.Request>}\r\n   */\r\n  get onRequest() {\r\n    return this._onRequest.asObservable();\r\n  }\r\n\r\n  /**\r\n   * The stream of \"response\" events.\r\n   * @type {Observable<superagent.Response>}\r\n   */\r\n  get onResponse() {\r\n    return this._onResponse.asObservable();\r\n  }\r\n\r\n  /**\r\n   * Sends a SMS message to the underlying account.\r\n   * @param {string} text The text of the message to send.\r\n   * @return {Observable<string>} The response as string.\r\n   * @emits {superagent.Request} The \"request\" event.\r\n   * @emits {superagent.Response} The \"response\" event.\r\n   */\r\n  sendMessage(text) {\r\n    if (!this.username.length || !this.password.length)\r\n      return Observable.throw(new Error('The account credentials are invalid.'));\r\n\r\n    let message = text.trim();\r\n    if (!message.length) return Observable.throw(new Error('The specified message is empty.'));\r\n\r\n    return new Observable(observer => {\r\n      let req = superagent.get(Client.END_POINT).query({\r\n        msg: message.substr(0, 160),\r\n        pass: this.password,\r\n        user: this.username\r\n      });\r\n\r\n      this._onRequest.next(req);\r\n      req.end((err, res) => {\r\n        if (err) observer.error(err);\r\n        else {\r\n          this._onResponse.next(res);\r\n          observer.next(res.text);\r\n          observer.complete();\r\n        }\r\n      });\r\n    });\r\n  }\r\n\r\n  /**\r\n   * Converts this object to a map in JSON format.\r\n   * @return {object} The map in JSON format corresponding to this object.\r\n   */\r\n  toJSON() {\r\n    return {\r\n      password: this.password,\r\n      username: this.username\r\n    };\r\n  }\r\n\r\n  /**\r\n   * Returns a string representation of this object.\r\n   * @return {string} The string representation of this object.\r\n   */\r\n  toString() {\r\n    let json = JSON.stringify(this.toJSON(), null, 2);\r\n    return `${this.constructor.name} ${json}`;\r\n  }\r\n}\r\n",
+    "content": "import {Observable, Subject} from 'rxjs';\r\nimport superagent from 'superagent';\r\n\r\n/**\r\n * Sends messages by SMS to a [Free Mobile](http://mobile.free.fr) account.\r\n */\r\nexport class Client {\r\n\r\n  /**\r\n   * The URL of the API end point.\r\n   * @type {string}\r\n   */\r\n  static get END_POINT() {\r\n    return 'https://smsapi.free-mobile.fr/sendmsg';\r\n  }\r\n\r\n  /**\r\n   * Initializes a new instance of the class.\r\n   * @param {object} [options] An object specifying values used to initialize this instance.\r\n   */\r\n  constructor(options = {}) {\r\n\r\n    /**\r\n     * The identification key associated to the account.\r\n     * @type {string}\r\n     */\r\n    this.password = typeof options.password == 'string' ? options.password : '';\r\n\r\n    /**\r\n     * The user name associated to the account.\r\n     * @type {string}\r\n     */\r\n    this.username = typeof options.username == 'string' ? options.username : '';\r\n\r\n    /**\r\n     * The handler of \"request\" events.\r\n     * @type {Subject<superagent.Request>}\r\n     */\r\n    this._onRequest = new Subject();\r\n\r\n    /**\r\n     * The handler of \"response\" events.\r\n     * @type {Subject<superagent.Response>}\r\n     */\r\n    this._onResponse = new Subject();\r\n  }\r\n\r\n  /**\r\n   * The stream of \"request\" events.\r\n   * @type {Observable<superagent.Request>}\r\n   */\r\n  get onRequest() {\r\n    return this._onRequest.asObservable();\r\n  }\r\n\r\n  /**\r\n   * The stream of \"response\" events.\r\n   * @type {Observable<superagent.Response>}\r\n   */\r\n  get onResponse() {\r\n    return this._onResponse.asObservable();\r\n  }\r\n\r\n  /**\r\n   * Sends a SMS message to the underlying account.\r\n   * @param {string} text The text of the message to send.\r\n   * @return {Observable<string>} The response as string.\r\n   * @emits {superagent.Request} The \"request\" event.\r\n   * @emits {superagent.Response} The \"response\" event.\r\n   */\r\n  sendMessage(text) {\r\n    if (!this.username.length || !this.password.length)\r\n      return Observable.throw(new Error('The account credentials are invalid.'));\r\n\r\n    let message = text.trim();\r\n    if (!message.length) return Observable.throw(new Error('The specified message is empty.'));\r\n\r\n    return Observable.create(observer => {\r\n      let req = superagent.get(Client.END_POINT).query({\r\n        msg: message.substr(0, 160),\r\n        pass: this.password,\r\n        user: this.username\r\n      });\r\n\r\n      this._onRequest.next(req);\r\n      req.end((err, res) => {\r\n        if (err) observer.error(err);\r\n        else {\r\n          this._onResponse.next(res);\r\n          observer.next(res.text);\r\n          observer.complete();\r\n        }\r\n      });\r\n    });\r\n  }\r\n\r\n  /**\r\n   * Converts this object to a map in JSON format.\r\n   * @return {object} The map in JSON format corresponding to this object.\r\n   */\r\n  toJSON() {\r\n    return {\r\n      password: this.password,\r\n      username: this.username\r\n    };\r\n  }\r\n\r\n  /**\r\n   * Returns a string representation of this object.\r\n   * @return {string} The string representation of this object.\r\n   */\r\n  toString() {\r\n    return `${this.constructor.name} ${JSON.stringify(this)}`;\r\n  }\r\n}\r\n",
     "static": true,
     "longname": "src/client.js",
     "access": null,
@@ -284,7 +284,7 @@
     "__docId__": 13,
     "kind": "file",
     "name": "src/index.js",
-    "content": "export * from './client';\r\n",
+    "content": "import {Client} from './client';\r\nexport * from './client';\r\n\r\n/**\r\n * Sends a SMS message to a given Free Mobile account, and returns the response body.\r\n * @param {string} text The text of the message to send.\r\n * @param {object} credentials The Free Mobile credentials.\r\n * @return {Observable<string>} The response as string.\r\n */\r\nexport function sendMessage(text, credentials) {\r\n  return new Client(credentials).sendMessage(text);\r\n}\r\n",
     "static": true,
     "longname": "src/index.js",
     "access": null,
@@ -292,7 +292,53 @@
     "lineNumber": 1
   },
   {
-    "__docId__": 15,
+    "__docId__": 14,
+    "kind": "function",
+    "name": "sendMessage",
+    "memberof": "src/index.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "src/index.js~sendMessage",
+    "access": null,
+    "export": true,
+    "importPath": "@cedx/free-mobile/src/index.js",
+    "importStyle": "{sendMessage}",
+    "description": "Sends a SMS message to a given Free Mobile account, and returns the response body.",
+    "lineNumber": 10,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "text",
+        "description": "The text of the message to send."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "object"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "credentials",
+        "description": "The Free Mobile credentials."
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Observable<string>"
+      ],
+      "spread": false,
+      "description": "The response as string."
+    }
+  },
+  {
+    "__docId__": 16,
     "kind": "external",
     "name": "Infinity",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Infinity",
@@ -304,7 +350,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 16,
+    "__docId__": 17,
     "kind": "external",
     "name": "NaN",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NaN",
@@ -316,7 +362,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 17,
+    "__docId__": 18,
     "kind": "external",
     "name": "undefined",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined",
@@ -328,7 +374,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 18,
+    "__docId__": 19,
     "kind": "external",
     "name": "null",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null",
@@ -340,7 +386,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 19,
+    "__docId__": 20,
     "kind": "external",
     "name": "Object",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
@@ -352,7 +398,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 20,
+    "__docId__": 21,
     "kind": "external",
     "name": "object",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
@@ -364,7 +410,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 21,
+    "__docId__": 22,
     "kind": "external",
     "name": "Function",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function",
@@ -376,7 +422,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 22,
+    "__docId__": 23,
     "kind": "external",
     "name": "function",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function",
@@ -388,7 +434,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 23,
+    "__docId__": 24,
     "kind": "external",
     "name": "Boolean",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean",
@@ -400,7 +446,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 24,
+    "__docId__": 25,
     "kind": "external",
     "name": "boolean",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean",
@@ -412,7 +458,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 25,
+    "__docId__": 26,
     "kind": "external",
     "name": "Symbol",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol",
@@ -424,7 +470,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 26,
+    "__docId__": 27,
     "kind": "external",
     "name": "Error",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error",
@@ -436,7 +482,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 27,
+    "__docId__": 28,
     "kind": "external",
     "name": "EvalError",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/EvalError",
@@ -448,7 +494,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 28,
+    "__docId__": 29,
     "kind": "external",
     "name": "InternalError",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/InternalError",
@@ -460,7 +506,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 29,
+    "__docId__": 30,
     "kind": "external",
     "name": "RangeError",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError",
@@ -472,7 +518,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 30,
+    "__docId__": 31,
     "kind": "external",
     "name": "ReferenceError",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ReferenceError",
@@ -484,7 +530,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 31,
+    "__docId__": 32,
     "kind": "external",
     "name": "SyntaxError",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SyntaxError",
@@ -496,7 +542,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 32,
+    "__docId__": 33,
     "kind": "external",
     "name": "TypeError",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError",
@@ -508,7 +554,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 33,
+    "__docId__": 34,
     "kind": "external",
     "name": "URIError",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/URIError",
@@ -520,7 +566,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 34,
+    "__docId__": 35,
     "kind": "external",
     "name": "Number",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number",
@@ -532,7 +578,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 35,
+    "__docId__": 36,
     "kind": "external",
     "name": "number",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number",
@@ -544,7 +590,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 36,
+    "__docId__": 37,
     "kind": "external",
     "name": "Date",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date",
@@ -556,7 +602,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 37,
+    "__docId__": 38,
     "kind": "external",
     "name": "String",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String",
@@ -568,7 +614,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 38,
+    "__docId__": 39,
     "kind": "external",
     "name": "string",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String",
@@ -580,7 +626,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 39,
+    "__docId__": 40,
     "kind": "external",
     "name": "RegExp",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp",
@@ -592,7 +638,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 40,
+    "__docId__": 41,
     "kind": "external",
     "name": "Array",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array",
@@ -604,7 +650,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 41,
+    "__docId__": 42,
     "kind": "external",
     "name": "Int8Array",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int8Array",
@@ -616,7 +662,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 42,
+    "__docId__": 43,
     "kind": "external",
     "name": "Uint8Array",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array",
@@ -628,7 +674,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 43,
+    "__docId__": 44,
     "kind": "external",
     "name": "Uint8ClampedArray",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray",
@@ -640,7 +686,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 44,
+    "__docId__": 45,
     "kind": "external",
     "name": "Int16Array",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int16Array",
@@ -652,7 +698,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 45,
+    "__docId__": 46,
     "kind": "external",
     "name": "Uint16Array",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint16Array",
@@ -664,7 +710,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 46,
+    "__docId__": 47,
     "kind": "external",
     "name": "Int32Array",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int32Array",
@@ -676,7 +722,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 47,
+    "__docId__": 48,
     "kind": "external",
     "name": "Uint32Array",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint32Array",
@@ -688,7 +734,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 48,
+    "__docId__": 49,
     "kind": "external",
     "name": "Float32Array",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array",
@@ -700,7 +746,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 49,
+    "__docId__": 50,
     "kind": "external",
     "name": "Float64Array",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float64Array",
@@ -712,7 +758,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 50,
+    "__docId__": 51,
     "kind": "external",
     "name": "Map",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map",
@@ -724,7 +770,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 51,
+    "__docId__": 52,
     "kind": "external",
     "name": "Set",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set",
@@ -736,7 +782,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 52,
+    "__docId__": 53,
     "kind": "external",
     "name": "WeakMap",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap",
@@ -748,7 +794,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 53,
+    "__docId__": 54,
     "kind": "external",
     "name": "WeakSet",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet",
@@ -760,7 +806,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 54,
+    "__docId__": 55,
     "kind": "external",
     "name": "ArrayBuffer",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer",
@@ -772,7 +818,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 55,
+    "__docId__": 56,
     "kind": "external",
     "name": "DataView",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView",
@@ -784,7 +830,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 56,
+    "__docId__": 57,
     "kind": "external",
     "name": "JSON",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON",
@@ -796,7 +842,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 57,
+    "__docId__": 58,
     "kind": "external",
     "name": "Promise",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise",
@@ -808,7 +854,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 58,
+    "__docId__": 59,
     "kind": "external",
     "name": "Generator",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator",
@@ -820,7 +866,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 59,
+    "__docId__": 60,
     "kind": "external",
     "name": "GeneratorFunction",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GeneratorFunction",
@@ -832,7 +878,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 60,
+    "__docId__": 61,
     "kind": "external",
     "name": "Reflect",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect",
@@ -844,7 +890,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 61,
+    "__docId__": 62,
     "kind": "external",
     "name": "Proxy",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy",
@@ -857,7 +903,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 63,
+    "__docId__": 64,
     "kind": "external",
     "name": "CanvasRenderingContext2D",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D",
@@ -869,7 +915,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 64,
+    "__docId__": 65,
     "kind": "external",
     "name": "DocumentFragment",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment",
@@ -881,7 +927,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 65,
+    "__docId__": 66,
     "kind": "external",
     "name": "Element",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Element",
@@ -893,7 +939,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 66,
+    "__docId__": 67,
     "kind": "external",
     "name": "Event",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Event",
@@ -905,7 +951,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 67,
+    "__docId__": 68,
     "kind": "external",
     "name": "Node",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Node",
@@ -917,7 +963,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 68,
+    "__docId__": 69,
     "kind": "external",
     "name": "NodeList",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/NodeList",
@@ -929,7 +975,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 69,
+    "__docId__": 70,
     "kind": "external",
     "name": "XMLHttpRequest",
     "externalLink": "https://developer.mozilla.org/en/docs/Web/API/XMLHttpRequest",
@@ -941,7 +987,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 70,
+    "__docId__": 71,
     "kind": "external",
     "name": "AudioContext",
     "externalLink": "https://developer.mozilla.org/en/docs/Web/API/AudioContext",
@@ -954,10 +1000,10 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 71,
+    "__docId__": 72,
     "kind": "testFile",
     "name": "test/client_test.js",
-    "content": "'use strict';\r\n\r\nimport assert from 'assert';\r\nimport {Client} from '../src/index';\r\nimport {Observable, Subject} from 'rxjs';\r\n\r\n/**\r\n * @test {Client}\r\n */\r\ndescribe('Client', function() {\r\n  this.timeout(15000);\r\n\r\n  /**\r\n   * @test {Client#constructor}\r\n   */\r\n  describe('#constructor()', () => {\r\n    it('should initialize the existing properties', () => {\r\n      let client = new Client({password: 'secret', username: 'anonymous'});\r\n      assert.equal(client.password, 'secret');\r\n      assert.equal(client.username, 'anonymous');\r\n    });\r\n\r\n    it('should not create new properties', () => {\r\n      assert.ok(!('foo' in new Client({foo: 'bar'})));\r\n    });\r\n  });\r\n\r\n  /**\r\n   * @test {Client#onRequest}\r\n   */\r\n  describe('#onRequest', () => {\r\n    it('should return an Observable instead of the underlying Subject', () => {\r\n      let stream = new Client().onRequest;\r\n      assert.ok(stream instanceof Observable);\r\n      assert.ok(!(stream instanceof Subject));\r\n    });\r\n  });\r\n\r\n  /**\r\n   * @test {Client#onResponse}\r\n   */\r\n  describe('#onResponse', () => {\r\n    it('should return an Observable instead of the underlying Subject', () => {\r\n      let stream = new Client().onResponse;\r\n      assert.ok(stream instanceof Observable);\r\n      assert.ok(!(stream instanceof Subject));\r\n    });\r\n  });\r\n\r\n  /**\r\n   * @test {Client#sendMessage}\r\n   */\r\n  describe('#sendMessage()', () => {\r\n    it('should return an Observable', () => {\r\n      assert.ok(new Client().sendMessage('') instanceof Observable);\r\n    });\r\n\r\n    it('should not send valid messages with invalid credentials', done => {\r\n      new Client().sendMessage('Hello World!').subscribe(\r\n        () => done(new Error('The credentials are invalid.')),\r\n        () => done()\r\n      );\r\n    });\r\n\r\n    it('should not send invalid messages with valid credentials', done => {\r\n      new Client({password: 'secret', username: 'anonymous'}).sendMessage('').subscribe(\r\n        () => done(new Error('The message is empty.')),\r\n        () => done()\r\n      );\r\n    });\r\n\r\n    if ('FREEMOBILE_USERNAME' in process.env && 'FREEMOBILE_PASSWORD' in process.env)\r\n      it('should send valid messages with valid credentials', done => {\r\n        new Client({password: process.env.FREEMOBILE_PASSWORD, username: process.env.FREEMOBILE_USERNAME})\r\n          .sendMessage('Bonjour Cédric !')\r\n          .subscribe(null, done, done);\r\n      });\r\n  });\r\n\r\n  /**\r\n   * @test {Client#toJSON}\r\n   */\r\n  describe('#toJSON()', () => {\r\n    it('should return an object instance with the same public values', () => {\r\n      let data = new Client({password: 'secret', username: 'anonymous'}).toJSON();\r\n      assert.equal(data.constructor.name, 'Object');\r\n      assert.equal(Object.keys(data).length, 2);\r\n      assert.equal(data.password, 'secret');\r\n      assert.equal(data.username, 'anonymous');\r\n    });\r\n  });\r\n\r\n  /**\r\n   * @test {Client#toString}\r\n   */\r\n  describe('#toString()', () => {\r\n    let client = String(new Client({password: 'secret', username: 'anonymous'}));\r\n\r\n    it('should start with the class name of the client', () => {\r\n      assert.equal(client.indexOf('Client {'), 0);\r\n    });\r\n\r\n    it('should contain the properties of the client', () => {\r\n      assert.ok(client.indexOf('\"password\": \"secret\"') > 0);\r\n      assert.ok(client.indexOf('\"username\": \"anonymous\"') > 0);\r\n    });\r\n  });\r\n});\r\n",
+    "content": "'use strict';\r\n\r\nimport assert from 'assert';\r\nimport {Client} from '../src/index';\r\nimport {Observable, Subject} from 'rxjs';\r\n\r\n/**\r\n * @test {Client}\r\n */\r\ndescribe('Client', function() {\r\n  this.timeout(15000);\r\n\r\n  /**\r\n   * @test {Client#constructor}\r\n   */\r\n  describe('#constructor()', () => {\r\n    it('should initialize the existing properties', () => {\r\n      let client = new Client({password: 'secret', username: 'anonymous'});\r\n      assert.equal(client.password, 'secret');\r\n      assert.equal(client.username, 'anonymous');\r\n    });\r\n\r\n    it('should not create new properties', () => {\r\n      assert.ok(!('foo' in new Client({foo: 'bar'})));\r\n    });\r\n  });\r\n\r\n  /**\r\n   * @test {Client#onRequest}\r\n   */\r\n  describe('#onRequest', () => {\r\n    it('should return an Observable instead of the underlying Subject', () => {\r\n      let stream = new Client().onRequest;\r\n      assert.ok(stream instanceof Observable);\r\n      assert.ok(!(stream instanceof Subject));\r\n    });\r\n  });\r\n\r\n  /**\r\n   * @test {Client#onResponse}\r\n   */\r\n  describe('#onResponse', () => {\r\n    it('should return an Observable instead of the underlying Subject', () => {\r\n      let stream = new Client().onResponse;\r\n      assert.ok(stream instanceof Observable);\r\n      assert.ok(!(stream instanceof Subject));\r\n    });\r\n  });\r\n\r\n  /**\r\n   * @test {Client#sendMessage}\r\n   */\r\n  describe('#sendMessage()', () => {\r\n    it('should return an Observable', () => {\r\n      assert.ok(new Client().sendMessage('') instanceof Observable);\r\n    });\r\n\r\n    it('should not send valid messages with invalid credentials', done => {\r\n      new Client().sendMessage('Hello World!').subscribe(\r\n        () => done(new Error('The credentials are invalid.')),\r\n        () => done()\r\n      );\r\n    });\r\n\r\n    it('should not send invalid messages with valid credentials', done => {\r\n      new Client({password: 'secret', username: 'anonymous'}).sendMessage('').subscribe(\r\n        () => done(new Error('The message is empty.')),\r\n        () => done()\r\n      );\r\n    });\r\n\r\n    if ('FREEMOBILE_USERNAME' in process.env && 'FREEMOBILE_PASSWORD' in process.env)\r\n      it('should send valid messages with valid credentials', done => {\r\n        new Client({password: process.env.FREEMOBILE_PASSWORD, username: process.env.FREEMOBILE_USERNAME})\r\n          .sendMessage('Bonjour Cédric !')\r\n          .subscribe(null, done, done);\r\n      });\r\n  });\r\n\r\n  /**\r\n   * @test {Client#toJSON}\r\n   */\r\n  describe('#toJSON()', () => {\r\n    it('should return an object instance with the same public values', () => {\r\n      let data = new Client({password: 'secret', username: 'anonymous'}).toJSON();\r\n      assert.equal(data.constructor.name, 'Object');\r\n      assert.equal(Object.keys(data).length, 2);\r\n      assert.equal(data.password, 'secret');\r\n      assert.equal(data.username, 'anonymous');\r\n    });\r\n  });\r\n\r\n  /**\r\n   * @test {Client#toString}\r\n   */\r\n  describe('#toString()', () => {\r\n    let client = String(new Client({password: 'secret', username: 'anonymous'}));\r\n\r\n    it('should start with the class name of the client', () => {\r\n      assert.equal(client.indexOf('Client {'), 0);\r\n    });\r\n\r\n    it('should contain the properties of the client', () => {\r\n      assert.ok(client.indexOf('\"password\":\"secret\"') > 0);\r\n      assert.ok(client.indexOf('\"username\":\"anonymous\"') > 0);\r\n    });\r\n  });\r\n});\r\n",
     "static": true,
     "longname": "test/client_test.js",
     "access": null,
@@ -965,7 +1011,7 @@
     "lineNumber": 1
   },
   {
-    "__docId__": 72,
+    "__docId__": 73,
     "kind": "testDescribe",
     "name": "describe0",
     "testId": 0,
@@ -987,7 +1033,7 @@
     ]
   },
   {
-    "__docId__": 73,
+    "__docId__": 74,
     "kind": "testDescribe",
     "name": "describe1",
     "testId": 1,
@@ -1009,7 +1055,7 @@
     ]
   },
   {
-    "__docId__": 74,
+    "__docId__": 75,
     "kind": "testIt",
     "name": "it2",
     "testId": 2,
@@ -1022,7 +1068,7 @@
     "lineNumber": 17
   },
   {
-    "__docId__": 75,
+    "__docId__": 76,
     "kind": "testIt",
     "name": "it3",
     "testId": 3,
@@ -1035,7 +1081,7 @@
     "lineNumber": 23
   },
   {
-    "__docId__": 76,
+    "__docId__": 77,
     "kind": "testDescribe",
     "name": "describe4",
     "testId": 4,
@@ -1057,7 +1103,7 @@
     ]
   },
   {
-    "__docId__": 77,
+    "__docId__": 78,
     "kind": "testIt",
     "name": "it5",
     "testId": 5,
@@ -1070,7 +1116,7 @@
     "lineNumber": 32
   },
   {
-    "__docId__": 78,
+    "__docId__": 79,
     "kind": "testDescribe",
     "name": "describe6",
     "testId": 6,
@@ -1092,7 +1138,7 @@
     ]
   },
   {
-    "__docId__": 79,
+    "__docId__": 80,
     "kind": "testIt",
     "name": "it7",
     "testId": 7,
@@ -1105,7 +1151,7 @@
     "lineNumber": 43
   },
   {
-    "__docId__": 80,
+    "__docId__": 81,
     "kind": "testDescribe",
     "name": "describe8",
     "testId": 8,
@@ -1127,7 +1173,7 @@
     ]
   },
   {
-    "__docId__": 81,
+    "__docId__": 82,
     "kind": "testIt",
     "name": "it9",
     "testId": 9,
@@ -1140,7 +1186,7 @@
     "lineNumber": 54
   },
   {
-    "__docId__": 82,
+    "__docId__": 83,
     "kind": "testIt",
     "name": "it10",
     "testId": 10,
@@ -1153,7 +1199,7 @@
     "lineNumber": 58
   },
   {
-    "__docId__": 83,
+    "__docId__": 84,
     "kind": "testIt",
     "name": "it11",
     "testId": 11,
@@ -1166,7 +1212,7 @@
     "lineNumber": 65
   },
   {
-    "__docId__": 84,
+    "__docId__": 85,
     "kind": "testIt",
     "name": "it12",
     "testId": 12,
@@ -1179,7 +1225,7 @@
     "lineNumber": 73
   },
   {
-    "__docId__": 85,
+    "__docId__": 86,
     "kind": "testDescribe",
     "name": "describe13",
     "testId": 13,
@@ -1201,7 +1247,7 @@
     ]
   },
   {
-    "__docId__": 86,
+    "__docId__": 87,
     "kind": "testIt",
     "name": "it14",
     "testId": 14,
@@ -1214,7 +1260,7 @@
     "lineNumber": 84
   },
   {
-    "__docId__": 87,
+    "__docId__": 88,
     "kind": "testDescribe",
     "name": "describe15",
     "testId": 15,
@@ -1236,7 +1282,7 @@
     ]
   },
   {
-    "__docId__": 88,
+    "__docId__": 89,
     "kind": "testIt",
     "name": "it16",
     "testId": 16,
@@ -1249,7 +1295,7 @@
     "lineNumber": 99
   },
   {
-    "__docId__": 89,
+    "__docId__": 90,
     "kind": "testIt",
     "name": "it17",
     "testId": 17,
@@ -1260,5 +1306,77 @@
     "access": null,
     "description": "should contain the properties of the client",
     "lineNumber": 103
+  },
+  {
+    "__docId__": 91,
+    "kind": "testFile",
+    "name": "test/index_test.js",
+    "content": "'use strict';\r\n\r\nimport assert from 'assert';\r\nimport {sendMessage} from '../src/index';\r\nimport {Observable} from 'rxjs';\r\n\r\n/**\r\n * @test {sendMessage}\r\n */\r\ndescribe('sendMessage()', () => {\r\n  it('should return an Observable', () => {\r\n    assert.ok(sendMessage('', {}) instanceof Observable);\r\n  });\r\n\r\n  it('should not send valid messages with invalid credentials', done => {\r\n    sendMessage('Hello World!', {}).subscribe(\r\n      () => done(new Error('The credentials are invalid.')),\r\n      () => done()\r\n    );\r\n  });\r\n\r\n  it('should not send invalid messages with valid credentials', done => {\r\n    sendMessage('', {password: 'secret', username: 'anonymous'}).subscribe(\r\n      () => done(new Error('The message is empty.')),\r\n      () => done()\r\n    );\r\n  });\r\n});\r\n",
+    "static": true,
+    "longname": "test/index_test.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 92,
+    "kind": "testDescribe",
+    "name": "describe18",
+    "testId": 18,
+    "memberof": "test/index_test.js",
+    "testDepth": 0,
+    "static": true,
+    "longname": "test/index_test.js~describe18",
+    "access": null,
+    "description": "sendMessage()",
+    "lineNumber": 10,
+    "unknown": [
+      {
+        "tagName": "@test",
+        "tagValue": "{sendMessage}"
+      }
+    ],
+    "testTargets": [
+      "sendMessage"
+    ]
+  },
+  {
+    "__docId__": 93,
+    "kind": "testIt",
+    "name": "it19",
+    "testId": 19,
+    "memberof": "test/index_test.js~describe18",
+    "testDepth": 1,
+    "static": true,
+    "longname": "test/index_test.js~describe18.it19",
+    "access": null,
+    "description": "should return an Observable",
+    "lineNumber": 11
+  },
+  {
+    "__docId__": 94,
+    "kind": "testIt",
+    "name": "it20",
+    "testId": 20,
+    "memberof": "test/index_test.js~describe18",
+    "testDepth": 1,
+    "static": true,
+    "longname": "test/index_test.js~describe18.it20",
+    "access": null,
+    "description": "should not send valid messages with invalid credentials",
+    "lineNumber": 15
+  },
+  {
+    "__docId__": 95,
+    "kind": "testIt",
+    "name": "it21",
+    "testId": 21,
+    "memberof": "test/index_test.js~describe18",
+    "testDepth": 1,
+    "static": true,
+    "longname": "test/index_test.js~describe18.it21",
+    "access": null,
+    "description": "should not send invalid messages with valid credentials",
+    "lineNumber": 22
   }
 ]

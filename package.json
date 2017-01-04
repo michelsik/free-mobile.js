@@ -7,7 +7,7 @@
   "bugs": "https://github.com/cedx/free-mobile.js/issues",
   "license": "Apache-2.0",
   "repository": "cedx/free-mobile.js",
-  "version": "2.3.0",
+  "version": "2.4.0",
 
   "jsnext:main": "./src/index",
   "main": "./lib/index",
@@ -22,14 +22,13 @@
     "babel-register": "^6.18.0",
     "coveralls": "^2.11.15",
     "del": "^2.2.2",
-    "esdoc": "^0.5.1",
+    "esdoc": "^0.5.2",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-istanbul": "^1.1.1",
     "gulp-eslint": "^3.0.1",
     "gulp-load-plugins": "^1.4.0",
     "gulp-mocha": "^3.0.1",
-    "gulp-zip": "^3.2.0",
     "isparta": "^4.0.0"
   },
   "engines": {
